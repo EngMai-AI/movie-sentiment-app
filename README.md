@@ -10,48 +10,47 @@ The model predicts whether a movie review is **Positive** or **Negative** based 
 
 ## 📂 Dataset
 
-* Rotten Tomatoes Reviews Dataset
-* Total Reviews: 10,662
-* Classes:
-
-  * Positive
-  * Negative
+- Rotten Tomatoes Reviews Dataset  
+- Total Reviews: 10,662  
+- Classes:
+  - Positive  
+  - Negative  
 
 ---
 
 ## 🛠 Technologies Used
 
-* Python
-* Pandas
-* NumPy
-* NLTK
-* Scikit-learn
-* Matplotlib
-* Seaborn
-* WordCloud
-* Streamlit
+- Python  
+- Pandas  
+- NumPy  
+- NLTK  
+- Scikit-learn  
+- Matplotlib  
+- Seaborn  
+- WordCloud  
+- Streamlit  
 
 ---
 
 ## 📊 Data Preprocessing
 
-* Lowercase conversion
-* Remove URLs
-* Remove HTML tags
-* Remove punctuation
-* Remove numbers
-* Remove stopwords
-* Lemmatization
-* TF-IDF Vectorization
+- Lowercase conversion  
+- Remove URLs  
+- Remove HTML tags  
+- Remove punctuation  
+- Remove numbers  
+- Remove stopwords  
+- Lemmatization  
+- TF-IDF Vectorization  
 
 ---
 
 ## 🤖 Machine Learning Models
 
-* Logistic Regression
-* Linear SVM
-* Multinomial Naive Bayes
-* Random Forest
+- Logistic Regression  
+- Linear SVM  
+- Multinomial Naive Bayes  
+- Random Forest  
 
 ---
 
@@ -63,18 +62,18 @@ Best Model: Multinomial Naive Bayes (after comparing multiple ML models)
 
 ## 📈 Evaluation
 
-* Accuracy
-* Classification Report
-* Confusion Matrix
-* ROC Curve
-* Cross Validation
+- Accuracy  
+- Classification Report  
+- Confusion Matrix  
+- ROC Curve  
+- Cross Validation  
 
 ---
 
 ## 💾 Saved Files
 
-* sentiment_model.pkl
-* tfidf_vectorizer.pkl
+- sentiment_model.pkl  
+- tfidf_vectorizer.pkl  
 
 ---
 
@@ -82,14 +81,15 @@ Best Model: Multinomial Naive Bayes (after comparing multiple ML models)
 
 The project includes a Streamlit application where users can:
 
-* Enter any movie review.
-* Predict Positive or Negative sentiment.
-* Display prediction confidence.
-* Test custom reviews interactively.
+- Enter any movie review  
+- Predict Positive or Negative sentiment  
+- Display prediction confidence  
+- Test custom reviews interactively  
 
 ---
 
-## 👩‍💻 Author
+## ▶ How to Run
 
-Mai
-
+```bash
+pip install -r requirements.txt
+streamlit run app.py
