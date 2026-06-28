@@ -2,7 +2,7 @@
 
 ## 📌 Project Overview
 
-This project performs **Sentiment Analysis** on Rotten Tomatoes movie reviews using Natural Language Processing (NLP) and Machine Learning.
+This project performs sentiment analysis on Rotten Tomatoes movie reviews using Natural Language Processing (NLP) and traditional Machine Learning models (TF-IDF + classifiers).
 
 The model predicts whether a movie review is **Positive** or **Negative** based on its text.
 
@@ -57,11 +57,7 @@ The model predicts whether a movie review is **Positive** or **Negative** based 
 
 ## 🏆 Best Model
 
-**Multinomial Naive Bayes**
-
-Accuracy: **76.79%**
-
-Cross Validation Accuracy: **76.60%**
+Best Model: Multinomial Naive Bayes (after comparing multiple ML models)
 
 ---
 
