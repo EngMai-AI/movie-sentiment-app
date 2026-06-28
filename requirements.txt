@@ -1,8 +1,6 @@
 streamlit
-scikit-learn
+scikit-learn==1.4.2
 pandas
 numpy
 nltk
 joblib
-transformers==4.41.1
-torch
