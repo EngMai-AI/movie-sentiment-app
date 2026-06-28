@@ -1,20 +1,14 @@
 import streamlit as st
-import numpy as np
 import joblib
 
 # =========================
-# Load Model
+# Load Model & Vectorizer
 # =========================
-@st.cache_resource
-def load_assets():
-    model = joblib.load("sentiment_model.pkl")
-    tfidf = joblib.load("tfidf_vectorizer.pkl")
-    return model, tfidf
-
-model, tfidf = load_assets()
+model = joblib.load("sentiment_model.pkl")
+tfidf = joblib.load("tfidf_vectorizer.pkl")
 
 # =========================
-# UI Settings
+# Page Config
 # =========================
 st.set_page_config(
     page_title="Movie Sentiment AI",
@@ -26,65 +20,66 @@ st.title("🎬 Movie Review Sentiment Analysis")
 st.markdown("🧠 AI powered by Machine Learning (TF-IDF + Naive Bayes)")
 
 # =========================
+# Session State
+# =========================
+if "text" not in st.session_state:
+    st.session_state.text = ""
+
+# =========================
+# Example Button
+# =========================
+def load_example():
+    st.session_state.text = "The movie was amazing, the acting was brilliant and the story was very engaging."
+
+st.button("💡 Load Example", on_click=load_example)
+
+# =========================
 # Input
 # =========================
-text = st.text_area("🎥 Enter your movie review:")
-
-if st.button("💡 Example"):
-    text = "The movie was amazing, the acting was brilliant and the story was perfect."
+text = st.text_area(
+    "🎥 Enter your movie review:",
+    key="text",
+    height=150
+)
 
 # =========================
 # Prediction
 # =========================
-if st.button("🔍 Predict Sentiment"):
+if st.button("🔍 Analyze Sentiment"):
 
-    if text.strip() == "":
-        st.warning("Please enter a movie review.")
+    if st.session_state.text.strip() == "":
+        st.warning("⚠ Please enter a movie review.")
     else:
 
-        cleaned = text.lower()
-        vector = tfidf.transform([cleaned])
-
+        vector = tfidf.transform([st.session_state.text])
         pred = model.predict(vector)[0]
-        proba = model.predict_proba(vector)[0]
 
-        negative = proba[0]
-        positive = proba[1]
+        proba = None
+        if hasattr(model, "predict_proba"):
+            proba = model.predict_proba(vector)[0]
 
         st.markdown("---")
 
-        # =========================
         # Result
-        # =========================
         if pred == 1:
             st.success("😊 Positive Review")
         else:
             st.error("😞 Negative Review")
 
-        # =========================
         # Confidence
-        # =========================
-        st.subheader("📊 Confidence Score")
+        if proba is not None:
+            st.subheader("📊 Confidence Score")
+            st.write(f"✔ Positive: {proba[1]*100:.2f}%")
+            st.write(f"❌ Negative: {proba[0]*100:.2f}%")
 
-        st.progress(int(max(positive, negative) * 100))
-
-        st.write(f"✔ Positive: {positive*100:.2f}%")
-        st.write(f"❌ Negative: {negative*100:.2f}%")
-
-        # =========================
         # Insight
-        # =========================
         st.subheader("🧠 Model Insight")
 
-        if max(positive, negative) > 0.85:
-            st.write("🔥 Very strong sentiment detected.")
-        elif max(positive, negative) > 0.60:
-            st.write("⚖ Moderate confidence prediction.")
-        else:
-            st.write("⚠ Weak sentiment / ambiguous review.")
-
-        # =========================
-        # Footer
-        # =========================
-        st.markdown("---")
-        st.caption("Built with ❤️ using Streamlit | NLP | Machine Learning")
+        if proba is not None:
+            conf = max(proba)
+            if conf > 0.85:
+                st.write("🔥 Very strong sentiment detected.")
+            elif conf > 0.60:
+                st.write("⚖ Moderate confidence prediction.")
+            else:
+                st.write("⚠ Low confidence prediction.")
