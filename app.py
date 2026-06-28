@@ -1,103 +1,97 @@
 import streamlit as st
-from transformers import pipeline
-import numpy as np
+import joblib
 
 # =========================
-# Load Model (RoBERTa - stronger than BERT)
+# Load Model & Vectorizer
 # =========================
 @st.cache_resource
-def load_model():
-    return pipeline(
-        "sentiment-analysis",
-        model="cardiffnlp/twitter-roberta-base-sentiment-latest"
-    )
+def load_assets():
+    model = joblib.load("sentiment_model.pkl")
+    tfidf = joblib.load("tfidf_vectorizer.pkl")
+    return model, tfidf
 
-model = load_model()
+model, tfidf = load_assets()
 
 # =========================
-# UI Config
+# Page Config
 # =========================
 st.set_page_config(
-    page_title="AI Sentiment Pro",
+    page_title="AI Sentiment Analysis",
     page_icon="🎬",
     layout="centered"
 )
 
-st.title("🎬 Advanced Sentiment Analysis AI")
-st.markdown("### 🚀 Powered by RoBERTa Transformer")
+# =========================
+# UI Header
+# =========================
+st.title("🎬 Movie Review Sentiment Analysis")
+st.markdown("### 🧠 AI powered by Machine Learning (TF-IDF + Naive Bayes)")
+
+st.markdown("---")
 
 # =========================
-# Input
+# Input Section
 # =========================
 text = st.text_area("🎥 Enter your movie review:")
 
-# Example
+# Example button
 if st.button("💡 Load Example"):
-    text = "The movie was not perfect, but the acting was great and the story was engaging."
+    text = "The movie was amazing, the acting was brilliant and I loved it!"
 
 # =========================
-# Prediction
+# Predict
 # =========================
-if st.button("🔍 Analyze Sentiment"):
+if st.button("🔍 Analyze"):
 
     if text.strip() == "":
-        st.warning("Please enter a review")
+        st.warning("⚠ Please enter a movie review.")
     else:
 
-        result = model(text)[0]
+        # Transform text
+        vector = tfidf.transform([text])
 
-        label = result["label"]
-        score = result["score"]
+        # Prediction
+        prediction = model.predict(vector)[0]
+        proba = model.predict_proba(vector)[0]
+
+        negative = proba[0] * 100
+        positive = proba[1] * 100
 
         st.markdown("---")
 
         # =========================
-        # Convert labels to readable
+        # Result
         # =========================
-        if label.lower().find("positive") != -1:
-            sentiment = "Positive 😊"
-            color = "success"
-        elif label.lower().find("negative") != -1:
-            sentiment = "Negative 😞"
-            color = "error"
+        if prediction == 1:
+            st.success("😊 Positive Review")
         else:
-            sentiment = "Neutral 😐"
-            color = "info"
+            st.error("😞 Negative Review")
+
+        # Confidence
+        st.subheader("📊 Confidence Score")
+        st.progress(int(max(positive, negative)))
+        st.write(f"✔ Positive: {positive:.2f}%")
+        st.write(f"❌ Negative: {negative:.2f}%")
 
         # =========================
-        # Display result
-        # =========================
-        if color == "success":
-            st.success(sentiment)
-        elif color == "error":
-            st.error(sentiment)
-        else:
-            st.info(sentiment)
-
-        # Confidence bar
-        st.subheader("Confidence Score")
-        st.progress(int(score * 100))
-        st.write(f"{score*100:.2f}%")
-
-        # =========================
-        # Explanation (Simple AI reasoning)
+        # Insight
         # =========================
         st.subheader("🧠 Model Insight")
 
-        if score > 0.85:
-            st.write("🔥 Very strong sentiment detected. Model is highly confident.")
-        elif score > 0.60:
-            st.write("⚖ Moderate confidence. Mixed sentiment detected.")
+        if max(positive, negative) > 80:
+            st.write("🔥 Very strong sentiment detected.")
+        elif max(positive, negative) > 60:
+            st.write("⚖ Moderate confidence prediction.")
         else:
-            st.write("⚠ Low confidence. Review may be neutral or ambiguous.")
+            st.write("⚠ Low confidence / mixed sentiment.")
 
         # =========================
-        # Simple keyword highlight simulation
+        # Simple keyword check
         # =========================
         st.subheader("🔍 Key Indicators")
 
-        positive_words = ["good", "great", "amazing", "excellent", "love", "brilliant", "perfect"]
-        negative_words = ["bad", "worst", "boring", "terrible", "awful", "hate"]
+        positive_words = ["good", "great", "amazing", "excellent", "love", "brilliant", "perfect", "awesome"]
+        negative_words = ["bad", "worst", "boring", "terrible", "awful", "hate", "poor"]
 
         words = text.lower().split()
 
@@ -116,4 +110,4 @@ if st.button("🔍 Analyze Sentiment"):
 # Footer
 # =========================
 st.markdown("---")
-st.caption("Built with ❤️ | Advanced NLP with RoBERTa Transformers")
+st.caption("Built with ❤️ using Streamlit | NLP | Machine Learning")
