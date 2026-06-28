@@ -4,5 +4,5 @@ pandas
 numpy
 nltk
 joblib
-transformers
+transformers==4.41.1
 torch
