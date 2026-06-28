@@ -1,20 +1,20 @@
 import streamlit as st
-from transformers import pipeline
+import numpy as np
+import joblib
 
 # =========================
 # Load Model
 # =========================
 @st.cache_resource
-def load_model():
-    return pipeline(
-        "sentiment-analysis",
-        model="cardiffnlp/twitter-roberta-base-sentiment-latest"
-    )
+def load_assets():
+    model = joblib.load("sentiment_model.pkl")
+    tfidf = joblib.load("tfidf_vectorizer.pkl")
+    return model, tfidf
 
-model = load_model()
+model, tfidf = load_assets()
 
 # =========================
-# UI
+# UI Settings
 # =========================
 st.set_page_config(
     page_title="Movie Sentiment AI",
@@ -23,45 +23,68 @@ st.set_page_config(
 )
 
 st.title("🎬 Movie Review Sentiment Analysis")
-st.markdown("🧠 AI powered by RoBERTa Transformer")
+st.markdown("🧠 AI powered by Machine Learning (TF-IDF + Naive Bayes)")
 
+# =========================
+# Input
+# =========================
 text = st.text_area("🎥 Enter your movie review:")
 
-# Example button
-if st.button("💡 Try Example"):
-    text = "The movie was amazing, the acting was brilliant and I loved it."
+if st.button("💡 Example"):
+    text = "The movie was amazing, the acting was brilliant and the story was perfect."
 
-# Predict
-if st.button("🔍 Analyze"):
+# =========================
+# Prediction
+# =========================
+if st.button("🔍 Predict Sentiment"):
 
     if text.strip() == "":
-        st.warning("Please enter a review")
+        st.warning("Please enter a movie review.")
     else:
-        result = model(text)[0]
 
-        label = result["label"]
-        score = result["score"]
+        cleaned = text.lower()
+        vector = tfidf.transform([cleaned])
 
-        # Mapping labels
-        if "positive" in label.lower():
-            sentiment = "Positive 😊"
-        elif "negative" in label.lower():
-            sentiment = "Negative 😞"
-        else:
-            sentiment = "Neutral 😐"
+        pred = model.predict(vector)[0]
+        proba = model.predict_proba(vector)[0]
+
+        negative = proba[0]
+        positive = proba[1]
 
         st.markdown("---")
 
-        if sentiment.startswith("Positive"):
-            st.success(sentiment)
-        elif sentiment.startswith("Negative"):
-            st.error(sentiment)
+        # =========================
+        # Result
+        # =========================
+        if pred == 1:
+            st.success("😊 Positive Review")
         else:
-            st.info(sentiment)
+            st.error("😞 Negative Review")
 
-        st.subheader("Confidence Score")
-        st.progress(int(score * 100))
-        st.write(f"{score*100:.2f}%")
+        # =========================
+        # Confidence
+        # =========================
+        st.subheader("📊 Confidence Score")
 
+        st.progress(int(max(positive, negative) * 100))
+
+        st.write(f"✔ Positive: {positive*100:.2f}%")
+        st.write(f"❌ Negative: {negative*100:.2f}%")
+
+        # =========================
+        # Insight
+        # =========================
+        st.subheader("🧠 Model Insight")
+
+        if max(positive, negative) > 0.85:
+            st.write("🔥 Very strong sentiment detected.")
+        elif max(positive, negative) > 0.60:
+            st.write("⚖ Moderate confidence prediction.")
+        else:
+            st.write("⚠ Weak sentiment / ambiguous review.")
+
+        # =========================
+        # Footer
+        # =========================
         st.markdown("---")
-        st.caption("Built with ❤️ using Streamlit | NLP | Transformers")
+        st.caption("Built with ❤️ using Streamlit | NLP | Machine Learning")
