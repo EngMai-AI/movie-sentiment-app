@@ -4,3 +4,5 @@ pandas
 numpy
 nltk
 joblib
+transformers
+torch
